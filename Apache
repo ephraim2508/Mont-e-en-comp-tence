@@ -1,1 +1,76 @@
+1 - Quels sont les scripts permettant de gérer l'arrêt/redémarrage de l'application ? 
+    
+    * sudo systemctl stop httpd
+    * sudo systemctl restart httpd
+    
+2 - Ou se trouve les fichiers/répertoires de configuration ?
+    
+    * Les fichiers et repertoires de configuration d'apache se trouve dans : /etc/httpd
+    
+3 - Qu'est-ce qu'il est possible de paramétrer dans l'application ?
 
+    * Avec Apache, il est possible de paramétrer la gestion et/ou le service des sites ou pages web mettant en exergue le protocole HTTP, de paramétrer le reverse-proxy, la gestion et le service sécurisé des sites et/ou pages web, de limiter la taille de téléchargement de contenu sur les sites, les hôtes virtuels,
+    
+4 - Qu'elles sont les paramètres importants pour réaliser le Tuning de l'application ?
+  
+    * On a d'abord les modules et les mpm (modules multi-processus) :
+        - mpm_prefork : Il implémente un serveur web avec démarrage anticipé de processus. Il utilise plusieurs processus enfants possédant chacun un seul thread. Chaque processus gère une seule connexion à la fois. Sur de nombreux systèmes, prefork est comparable en matière de vitesse à worker, mais il utilise plus de mémoire. De par sa conception sans thread, prefork présente des avantages par rapport à worker dans certaines situations : il peut être utilisé avec les modules tiers qui ne supportent pas le threading, et son débogage est plus aisé sur les platesformes présentant un support du débogage des threads rudimentaire.
+        - mpm_worker : Module multi-processus implémentant un serveur web hybride multi-processus multi-thread. Il utilise plusieurs processus enfants possédant chacun de nombreux threads. Chaque thread gère une seule connexion à la fois. Worker est en général un bon choix pour les serveurs présentant un traffic important car il possède une empreinte mémoire plus petite que le MPM prefork.
+        - mpm_event : Une variante du MPM worker conçue pour ne mobiliser des threads que pour les connexions en cours de traitement. Il tilise les threads, mais il a été conçu pour traiter davantage de requêtes simultanément en confiant une partie du travail à des threads de support, ce qui permet aux threads principaux de traiter de nouvelles requêtes.
+        - mpm_netware : Module multi-processus implémentant un serveur web basé exclusivement sur les threads et optimisé pour Novell NetWare. 
+        - mpm_winnt : Module multi-processus optimisé pour Windows NT. Ce module multi-processus (MPM) est le module par défaut pour les systèmes d'exploitation de style Windows NT. Il consiste en un processus de contrôle unique qui lance un processus enfant unique, ce dernier créant à son tour des threads pour traiter les requêtes.     
+        - mpm_mpmt_os2 : MPM hybride multi-processus, multi-thread pour OS/2. Le serveur se compose d'un processus principal parent, et d'un petit nombre fixe de processus enfants. La tâche du processus parent consiste à gérer les processus enfants, c'est à dire lancer ces processus de manière à ce qu'il y en ait toujours un nombre égal à la valeur de la directive StartServers pour traiter les connexions.
+    
+     * Il existe le paramètre MaxWorkerRequest qui désigne le nombre de requêtes qui peuvent être traitées simultanément.
+     * La directive HostNameLookups qui par rapport aux requêtes effectue des recherches DNS.
+     * La directive StartServer qui désigne le nombre de processus enfants du server créés au démarrage. Il est disponible pour les module	mpm_netware, event, worker, prefork, mpmt_os2.
+     * La directive StartThreads qui désigne le nombre de threads créés au démarrage.
+     * La directive ThreadStackSize qui désigne la taille en octets de la pile qu'utilisent les threads qui traitent les connexions clients. Il est disponible pour les modules event, worker, mpm_winnt, mpm_netware, mpmt_os2.
+     * La directive ThreadsPerChild qui désigne le nombre de threads créés par chaque processus enfant. Il est disponible pour les modules event, worker, mpm_winnt.
+     * La directive ThreadLimit qui désigne le nombre de threads maximum que l'on peut définir par processus enfant. Il est disponible pour les modules event, worker, mpm_winnt.
+     * La directive ServerLimit qui désigne limite supérieure de la définition du nombre de processus. Il est disponible pour les modules	event, worker, prefork.
+     * La directive SendBufferSize qui désigne la taille du tampon TCP en sortie. Sa valeur s'exprime en octet. Il est disponible pour les modules suivants event, worker, prefork, mpm_winnt, mpm_netware, mpmt_os2.
+     * La directive ScoreBoardFile qui désigne le chemin du fichier où sont stockées les données concernant la coordination des processus enfants. Il est disponible pour les modules event, worker, prefork, mpm_winnt.
+     * La directive ReceiveBufferSize qui désigne la taille du tampon TCP en entrée. Il est disponible pour les modules event, worker, prefork, mpm_winnt, mpm_netware, mpmt_os2.
+     * La directive PidFile qui désigne le ficher dans lequel le serveur enregistre l'identificateur de processus du démon. Il est disponible pour le module event, worker, prefork, mpm_winnt, mpmt_os2.
+     * La directive ListenCoresBucketsRatio qui désigne le rapport entre le nombre de coeurs de processeur activés et le nombre de segments d'écoute. Il est disponible pour les modules event, worker, prefork.
+     * La directive MinSpareThreads qui désigne le nombre minimum de threads inactifs qui seront disponibles pour pouvoir traiter les pics de requêtes. Il est disponible pour les modules	event, worker, mpm_netware, mpmt_os2.
+     * La directive CoreDumpDirectory qui désigne le répertoire dans lequel le serveur HTTP Apache va tenter de se positionner avant d'effectuer un vidage mémoire. Il est disponible pour les modules event, worker, prefork.
+     * La directive EnableExceptionHook qui désigne l'activation d'un hook ("point d'accrochage logiciel") qui exécute des gestionnaires d'exception après un crash. Il est disponible pour les modules	event, worker, prefork.
+     * La directive GracefulShutdownTimeout qui désigne la spécification du délai maximum après lequel le serveur va s'arrêter dans le cas d'un arrêt "en douceur". Il est disponible pour les modules event, worker, prefork.
+     * La directive Listen qui désigne les adresses IP et les ports sur lesquels le serveur écoute. Il est disponible pour les modules 	event, worker, prefork, mpm_winnt, mpm_netware, mpmt_os2.
+     * La directive ListenBackLog qui désigne la longueur maximale de la liste d'attente des connexions. Il est disponible pour les modules event, worker, prefork, mpm_winnt, mpm_netware, mpmt_os2.
+     * La directive ListenCoresBucketsRatio qui désigne le rapport entre le nombre de coeurs de processeur activés et le nombre de segments d'écoute. Il est disponible pour les modules event, worker, prefork.
+     * La directive MaxConnectionsPerChild qui limite le nombre de connexions qu'un processus enfant va traiter au cours de son fonctionnement. Il est disponible pour les modules event, worker, prefork, mpm_winnt, mpm_netware, mpmt_os2.
+     * La directive Directive MaxMemFree qui désigne la quantité maximale de mémoire que l'allocateur principal est autorisé à conserver sans appeler free(). Il est disponible pour les modules event, worker, prefork, mpm_winnt, mpm_netware.
+     * La directive MaxSpareThreads qui désigne le nombre maximum de threads inactifs. Il est disponible pour les modules	event, worker, mpm_netware, mpmt_os2.
+     * La directive MaxSpareServers qui désigne le nombre maximum de processus serveurs enfants inactifs. Il est disponible pour le module prefork.
+     * La directive MinSpareServer qui désigne le nombre minimum de processus serveurs enfants inactifs. Il est disponible pour le module prefork.
+     
+5 - Ou se trouve les logs de l'application ?
+    
+      * Les logs d'apache se trouvent dans /var/log/httpd
+      
+6 - Où se trouvent les données de l'application ?
+
+      * Nous avons des données d'apache qui se trouve dans /etc/httpd/.
+      * Nous avons aussi des données concernant les différents sites qui se trouvent dans /var/www.
+      
+      Les données sont repartis dans plusieurs fichier en fonction de leurs types ou du types d'informations qu'elles contiennent.
+	Dans le repertoire html, nous avons les données de types html, dans le repertoire log, nous avons les données de type ASCII. Nous avons avons des données en fonctions des leurs utilités qui sont repartis dans plusieurs fichiers.
+
+7 - Y a-t-il des données de cache ? Ou se trouve-t-elle ? Quel impact peut- on avoir sur les purges ?
+
+    * Apache dispose de données de cache. Ceux ci se trouve dans /var/cache/apache
+
+8 - Existe-t-il des outils d'administration permettant de gérer l'application ?
+
+     * 
+     
+9 - Sur quels ports écoutent l'application ?
+    
+     * Apache écoute sur le port 80.
+     
+10 - Y a-t-il des sessions utilisateurs ?
+
+      * Oui apache implémente les possibilités de session des utilisateurs. 
